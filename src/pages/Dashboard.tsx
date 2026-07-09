@@ -3,12 +3,14 @@ import api from '../services/api';
 import { useSocket } from '../hooks/useSocket';
 import { useAuth } from '../context/AuthContext';
 import ProductCard from '../components/ProductCard/ProductCard';
+import UpcomingDropCard from '../components/UpcomingDropCard/UpcomingDropCard';
 import Layout from '../components/Layout/Layout';
 import type { Drop } from '../types';
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [drops, setDrops] = useState<Drop[]>([]);
+  const [upcomingDrops, setUpcomingDrops] = useState<Drop[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeReservations, setActiveReservations] = useState<Record<string, string>>({});
 
@@ -54,7 +56,7 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    fetchDrops();
+    fetchAll();
   }, []);
 
   useEffect(() => {
@@ -65,10 +67,14 @@ export default function Dashboard() {
     }
   }, [user]);
 
-  const fetchDrops = async () => {
+  const fetchAll = async () => {
     try {
-      const res = await api.get('/drops/active');
-      setDrops(res.data.data);
+      const [activeRes, upcomingRes] = await Promise.all([
+        api.get('/drops/active'),
+        api.get('/drops/upcoming'),
+      ]);
+      setDrops(activeRes.data.data);
+      setUpcomingDrops(upcomingRes.data.data);
     } catch {
       console.error('Failed to fetch drops');
     } finally {
@@ -112,44 +118,62 @@ export default function Dashboard() {
     );
   }
 
-  if (drops.length === 0) {
-    return (
-      <Layout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <h2 className="text-xl font-semibold text-gray-300 mb-2">No Active Drops</h2>
-            <p className="text-gray-500">Check back later for new sneaker drops!</p>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+  const hasNoContent = drops.length === 0 && upcomingDrops.length === 0;
 
   return (
     <Layout reservationCount={reservationCount}>
       <div className="space-y-12">
-        {drops.map((drop) => (
-          <section key={drop.id}>
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-white">{drop.name}</h2>
-              {drop.description && (
-                <p className="text-gray-400 mt-1">{drop.description}</p>
-              )}
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {drop.products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  activeReservationId={activeReservations[product.id] || null}
-                  onStockUpdate={handleStockUpdate}
-                  onReservationCreated={handleReservationCreated}
-                  onReservationCleared={handleReservationCleared}
-                />
+        {drops.length > 0 && (
+          <section>
+            <div className="space-y-8">
+              {drops.map((drop) => (
+                <div key={drop.id}>
+                  <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-white">{drop.name}</h2>
+                    {drop.description && (
+                      <p className="text-gray-400 mt-1">{drop.description}</p>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {drop.products.map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        activeReservationId={activeReservations[product.id] || null}
+                        onStockUpdate={handleStockUpdate}
+                        onReservationCreated={handleReservationCreated}
+                        onReservationCleared={handleReservationCleared}
+                      />
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           </section>
-        ))}
+        )}
+
+        {upcomingDrops.length > 0 && (
+          <section>
+            <div className="mb-6 flex items-center gap-3">
+              <h2 className="text-2xl font-bold text-white">Coming Soon</h2>
+              <div className="h-px flex-1 bg-gradient-to-r from-gray-800 to-transparent" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {upcomingDrops.map((drop) => (
+                <UpcomingDropCard key={drop.id} drop={drop} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {hasNoContent && (
+          <div className="flex items-center justify-center min-h-[40vh]">
+            <div className="text-center">
+              <h2 className="text-xl font-semibold text-gray-300 mb-2">No Drops Available</h2>
+              <p className="text-gray-500">Check back later for new sneaker drops!</p>
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );
