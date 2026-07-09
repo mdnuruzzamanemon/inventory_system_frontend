@@ -5,6 +5,19 @@ import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import type { Product } from '../../types';
 
+function timeAgo(dateStr: string): string {
+  const now = Date.now();
+  const then = new Date(dateStr).getTime();
+  const seconds = Math.floor((now - then) / 1000);
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
 interface Props {
   product: Product;
   activeReservationId: string | null;
@@ -91,11 +104,24 @@ export default function ProductCard({
 
       {product.recentPurchasers.length > 0 && (
         <div className="bg-gray-800/50 rounded-lg p-3">
-          <p className="text-xs text-gray-400 mb-1">Recent buyers</p>
-          <div className="flex flex-col gap-0.5">
+          <p className="text-xs text-gray-400 mb-2 flex items-center gap-1">
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Recent purchases
+          </p>
+          <div className="flex flex-col gap-2">
             {product.recentPurchasers.map((p, i) => (
-              <div key={i} className="text-sm text-gray-300">
-                #{i + 1} {p.username}
+              <div key={i} className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-violet-500/20 border border-violet-500/30 flex items-center justify-center flex-shrink-0">
+                  <span className="text-xs font-semibold text-violet-400">
+                    {p.username.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="text-sm font-medium text-gray-200 truncate">{p.username}</span>
+                  <span className="text-xs text-gray-500 whitespace-nowrap">{timeAgo(p.purchasedAt)}</span>
+                </div>
               </div>
             ))}
           </div>
