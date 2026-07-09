@@ -23,11 +23,11 @@ export default function Navbar({ reservationCount }: Props) {
         {user ? (
           <>
             {reservationCount > 0 && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-                <svg className="w-4 h-4 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                <svg className="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
                 </svg>
-                <span className="text-sm text-yellow-400 font-medium">{reservationCount}</span>
+                <span className="text-sm text-amber-400 font-medium">{reservationCount}</span>
               </div>
             )}
             <span className="text-sm text-gray-400">
@@ -50,7 +50,7 @@ export default function Navbar({ reservationCount }: Props) {
             </Link>
             <Link
               to="/register"
-              className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors"
+              className="px-4 py-2 text-sm bg-violet-600 hover:bg-violet-500 rounded-lg transition-colors"
             >
               Register
             </Link>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -20,6 +21,7 @@ export default function ProductCard({
   onReservationCleared,
 }: Props) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [reserving, setReserving] = useState(false);
   const [purchasing, setPurchasing] = useState(false);
 
@@ -27,7 +29,11 @@ export default function ProductCard({
 
   const handleReserve = async () => {
     if (!user) {
-      toast.error('Please login to reserve');
+      toast('Sign up to reserve this item', {
+        icon: '🔒',
+        style: { background: '#1f2937', color: '#fff', border: '1px solid #374151' },
+      });
+      navigate('/register');
       return;
     }
 
@@ -73,7 +79,7 @@ export default function ProductCard({
       <div className="flex justify-between items-start">
         <div>
           <h3 className="text-lg font-semibold text-white">{product.name}</h3>
-          <p className="text-2xl font-bold text-blue-400 mt-1">${Number(product.price).toFixed(2)}</p>
+          <p className="text-2xl font-bold text-violet-400 mt-1">${Number(product.price).toFixed(2)}</p>
         </div>
         <div className="text-right">
           <div className={`text-sm font-medium ${outOfStock ? 'text-red-400' : 'text-green-400'}`}>
@@ -96,37 +102,35 @@ export default function ProductCard({
         </div>
       )}
 
-      {user && (
-        <div className="flex gap-2 mt-auto">
-          {!activeReservationId ? (
-            <button
-              onClick={handleReserve}
-              disabled={reserving || outOfStock}
-              className={`flex-1 px-4 py-2.5 rounded-lg font-medium text-sm transition-all cursor-pointer
-                ${outOfStock
-                  ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
-                  : reserving
-                    ? 'bg-blue-800 text-blue-200 cursor-wait'
-                    : 'bg-blue-600 hover:bg-blue-500 text-white'
-                }`}
-            >
-              {reserving ? 'Reserving...' : outOfStock ? 'Out of Stock' : 'Reserve'}
-            </button>
-          ) : (
-            <button
-              onClick={handlePurchase}
-              disabled={purchasing}
-              className={`flex-1 px-4 py-2.5 rounded-lg font-medium text-sm transition-all cursor-pointer
-                ${purchasing
-                  ? 'bg-green-800 text-green-200 cursor-wait'
-                  : 'bg-green-600 hover:bg-green-500 text-white'
-                }`}
-            >
-              {purchasing ? 'Processing...' : 'Complete Purchase'}
-            </button>
-          )}
-        </div>
-      )}
+      <div className="flex gap-2 mt-auto">
+        {!activeReservationId ? (
+          <button
+            onClick={handleReserve}
+            disabled={reserving || outOfStock}
+            className={`flex-1 px-4 py-2.5 rounded-lg font-medium text-sm transition-all cursor-pointer
+              ${outOfStock
+                ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                : reserving
+                  ? 'bg-violet-800 text-violet-200 cursor-wait'
+                  : 'bg-violet-600 hover:bg-violet-500 text-white'
+              }`}
+          >
+            {reserving ? 'Reserving...' : outOfStock ? 'Out of Stock' : 'Reserve'}
+          </button>
+        ) : (
+          <button
+            onClick={handlePurchase}
+            disabled={purchasing}
+            className={`flex-1 px-4 py-2.5 rounded-lg font-medium text-sm transition-all cursor-pointer
+              ${purchasing
+                ? 'bg-emerald-800 text-emerald-200 cursor-wait'
+                : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+              }`}
+          >
+            {purchasing ? 'Processing...' : 'Complete Purchase'}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
